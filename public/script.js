@@ -1,7 +1,7 @@
 "use strict";
 
 // ============================================================
-//  Capital Gains Tax Calculator — all math runs locally.
+//  Capital Gains Tax Calculator: all math runs locally.
 //  Tax year 2026 estimates (Rev. Proc. 2025-32). Not tax advice.
 // ============================================================
 
@@ -201,7 +201,7 @@ function calc() {
     el.savingsBox.hidden = loss <= 0;
     el.savingsBox.className = "savings savings--warn";
     el.savingsBox.innerHTML = loss > 0
-      ? `This sale is a <b>capital loss of ${money(loss)}</b> — no tax is due. Losses first offset other capital gains; up to $3,000 per year can offset ordinary income, and the rest carries forward.`
+      ? `This sale is a <b>capital loss of ${money(loss)}</b>, so no tax is due. Losses first offset other capital gains; up to $3,000 per year can offset ordinary income, and the rest carries forward.`
       : "";
     el.donut.style.background = "conic-gradient(rgba(148,163,184,.25) 0 100%)";
     el.legKept.textContent = money(0); el.legFed.textContent = money(0);
@@ -213,7 +213,7 @@ function calc() {
     el.rProceeds.textContent = money(sale);
     el.rKept.textContent = money(0);
     el.rEffRate.textContent = "0%";
-    el.taxNote.textContent = "Estimates only — not tax, legal, or financial advice.";
+    el.taxNote.textContent = "Estimates only. Not tax, legal, or financial advice.";
     return;
   }
 
@@ -236,7 +236,7 @@ function calc() {
       el.savingsBox.innerHTML = `Long-term status is saving you <b>${money(saveByHolding)}</b> vs. selling within a year.`;
     } else {
       el.savingsBox.className = "savings savings--warn";
-      el.savingsBox.innerHTML = `Hold it for more than 1 year and this tax drops to <b>${money(alt.total)}</b> — a saving of <b>${money(saveByHolding)}</b>.`;
+      el.savingsBox.innerHTML = `Hold it for more than 1 year and this tax drops to <b>${money(alt.total)}</b>, a saving of <b>${money(saveByHolding)}</b>.`;
     }
   } else {
     el.savingsBox.hidden = true;
@@ -280,11 +280,11 @@ function calc() {
     ? "Washington's capital gains tax exempts real estate. "
     : "Washington has no ordinary income tax but taxes long-term gains above ~$278,000 at 7% (9.9% over $1M); real estate is exempt. ";
   else if (s?.none) note += s.name + " has no state income tax. ";
-  if (s?.pref && isLong) note += s.name + " taxes long-term gains at reduced rates or with exclusions not modeled here — your state tax may be lower. ";
+  if (s?.pref && isLong) note += s.name + " taxes long-term gains at reduced rates or with exclusions not modeled here, so your actual state tax may be lower. ";
   if (s?.local) note += s.name + " also has local income taxes not included. ";
   if (isHome && !isLong) note += "Note: the home-sale exclusion requires 2+ years of ownership and use, so qualifying sales are long-term. ";
   if (t.niit > 0) note += "NIIT uses taxable income as a stand-in for MAGI. ";
-  note += "Assumes no other capital gains or losses. Estimates only — not tax, legal, or financial advice.";
+  note += "Assumes no other capital gains or losses. Estimates only. Not tax, legal, or financial advice.";
   el.taxNote.textContent = note;
 }
 
