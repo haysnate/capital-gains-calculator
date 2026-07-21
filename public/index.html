@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Capital Gains Tax Calculator 2026 — Federal &amp; State</title>
+  <meta name="description" content="Free 2026 capital gains tax calculator. Estimate federal short-term and long-term capital gains tax, the 3.8% NIIT, and state tax on stocks, crypto, or a home sale — instantly." />
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="canonical" href="https://capitalgainscalculatorhq.com/" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Capital Gains Tax Calculator 2026 — Federal &amp; State" />
+  <meta property="og:description" content="Estimate short- and long-term capital gains tax, NIIT, and state tax — with a hold-longer savings comparison." />
+  <meta property="og:url" content="https://capitalgainscalculatorhq.com/" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5812381332044887" crossorigin="anonymous"></script>
+  <meta name="google-adsense-account" content="ca-pub-5812381332044887" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Capital Gains Tax Calculator",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "description": "Free 2026 capital gains tax calculator with short-term vs long-term comparison, federal 0/15/20% brackets, 3.8% NIIT, home-sale exclusion, and state tax estimates for all 50 states."
+  }
+  </script>
+</head>
+<body>
+  <div class="layout">
+    <main class="card" role="main">
+      <header class="card__header">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+        </div>
+        <div class="card__heading">
+          <h1>Capital Gains Tax Calculator</h1>
+          <p class="subtitle">2026 federal &amp; state tax on your sale — in seconds.</p>
+        </div>
+      </header>
+
+      <div class="card__body">
+        <div class="inputs">
+          <div class="grid2">
+            <div class="field">
+              <label for="purchase">Purchase price</label>
+              <div class="input-wrap"><span class="affix">$</span><input id="purchase" inputmode="decimal" type="text" value="0" autocomplete="off"></div>
+            </div>
+            <div class="field">
+              <label for="sale">Sale price</label>
+              <div class="input-wrap"><span class="affix">$</span><input id="sale" inputmode="decimal" type="text" value="0" autocomplete="off"></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label id="holdLabel">How long did you hold it?</label>
+            <div class="seg" role="group" aria-labelledby="holdLabel">
+              <button type="button" id="termShort">1 year or less</button>
+              <button type="button" id="termLong" class="active">More than 1 year</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="filing">Filing status</label>
+            <select id="filing" class="input-el">
+              <option value="single" selected>Single</option>
+              <option value="married">Married filing jointly</option>
+              <option value="hoh">Head of household</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="income">Taxable income <span style="font-weight:500">(excluding this gain)</span></label>
+            <div class="input-wrap"><span class="affix">$</span><input id="income" inputmode="decimal" type="text" value="0" autocomplete="off"></div>
+            <p class="hint">Your ordinary taxable income after deductions — it determines which capital gains bracket applies.</p>
+          </div>
+
+          <div class="field">
+            <label for="state">State</label>
+            <select id="state" class="input-el" aria-label="State"></select>
+          </div>
+
+          <div class="field">
+            <label class="check" for="homeSale">
+              <input type="checkbox" id="homeSale">
+              <span>This was the sale of my primary home</span>
+            </label>
+            <p class="hint" id="homeHint" hidden>Applies the IRS exclusion of up to $250,000 of gain ($500,000 married filing jointly) if you owned and lived in the home for at least 2 of the last 5 years.</p>
+          </div>
+        </div>
+
+        <section class="results" aria-live="polite">
+          <div class="result-head">
+            <span class="result-label" id="taxLabel">Estimated tax on this sale</span>
+            <span class="result-value" id="totalTax">$0</span>
+          </div>
+
+          <div class="savings" id="savingsBox" hidden></div>
+
+          <div class="breakdown">
+            <div class="donut" id="donut" aria-hidden="true"></div>
+            <ul class="legend">
+              <li><span class="dot" style="background:var(--c-kept)"></span>You keep <b id="legKept">$0</b></li>
+              <li><span class="dot" style="background:var(--c-fed)"></span>Federal tax <b id="legFed">$0</b></li>
+              <li id="legNiitRow"><span class="dot" style="background:var(--c-niit)"></span>NIIT (3.8%) <b id="legNiit">$0</b></li>
+              <li id="legStateRow"><span class="dot" style="background:var(--c-state)"></span>State tax <b id="legState">$0</b></li>
+            </ul>
+          </div>
+
+          <div class="rrow"><span id="rGainLabel">Capital gain</span><b id="rGain">$0</b></div>
+          <div class="rrow" id="rExclRow" hidden><span>Home-sale exclusion</span><b id="rExcl">−$0</b></div>
+          <div class="rrow" id="rTaxableRow" hidden><span>Taxable gain</span><b id="rTaxable">$0</b></div>
+          <div class="rrow total"><span>After-tax proceeds</span><b id="rProceeds">$0</b></div>
+          <div class="rrow net"><span>Gain you keep after tax</span><b id="rKept">$0</b></div>
+          <div class="rrow"><span>Effective tax rate on gain</span><b id="rEffRate">0%</b></div>
+
+          <p class="tax-note" id="taxNote"></p>
+        </section>
+      </div>
+    </main>
+
+    <!-- Google AdSense slot (added at monetization step) -->
+    <div class="adslot" aria-hidden="true">Ad space</div>
+
+    <footer class="site-footer">
+      <span class="copy">© <span id="year">2026</span> Capital Gains Calculator</span>
+      <a href="guide.html">Guide</a>
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy</a>
+    </footer>
+  </div>
+
+  <script>{const y=document.getElementById("year");if(y)y.textContent=new Date().getFullYear();}</script>
+  <script src="script.js"></script>
+</body>
+</html>
