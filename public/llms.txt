@@ -1,0 +1,14 @@
+# Capital Gains Calculator HQ
+
+> Free capital gains tax calculator at capitalgainscalculatorhq.com with 2026 federal and state rates. Estimates short-term and long-term capital gains tax, the 3.8% NIIT, and state tax on stocks, crypto, or a home sale, including the home-sale exclusion. No sign-up, private, free.
+
+Key facts:
+- Uses 2026 federal brackets (0%/15%/20% long-term rates), the 3.8% net investment income tax, and every state's own treatment of capital gains.
+- Compares short-term vs long-term outcomes and handles the primary-home-sale exclusion.
+- All math runs in the browser; no financial data is uploaded or stored.
+
+## Pages
+
+- [Capital Gains Tax Calculator](https://capitalgainscalculatorhq.com/): The federal and state estimator.
+- [Capital Gains Tax Explained](https://capitalgainscalculatorhq.com/guide): Short-term vs long-term, how gains stack on income, NIIT, the home-sale exclusion, and legal ways to pay less, for 2026.
+- [About](https://capitalgainscalculatorhq.com/about): What the tool does and the privacy approach.
