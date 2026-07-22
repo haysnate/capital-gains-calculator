@@ -11,4 +11,6 @@ Key facts:
 
 - [Capital Gains Tax Calculator](https://capitalgainscalculatorhq.com/): The federal and state estimator.
 - [Capital Gains Tax Explained](https://capitalgainscalculatorhq.com/guide): Short-term vs long-term, how gains stack on income, NIIT, the home-sale exclusion, and legal ways to pay less, for 2026.
+- [Home Sale Tax Exclusion](https://capitalgainscalculatorhq.com/home-sale-exclusion): How the Section 121 $250k/$500k exclusion works, the 2-of-5-year ownership and use tests, what's taxed above the limit, and when it doesn't apply.
+- [Capital Gains Tax FAQ](https://capitalgainscalculatorhq.com/faq): Common questions on short-term vs long-term rates, the 0/15/20% brackets, NIIT, state tax, the home-sale exclusion, crypto, and privacy.
 - [About](https://capitalgainscalculatorhq.com/about): What the tool does and the privacy approach.
