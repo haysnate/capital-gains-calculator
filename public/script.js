@@ -20,6 +20,9 @@ const FED = {
   hoh:     [[17700,.10],[67450,.12],[105700,.22],[201800,.24],[256250,.32],[640600,.35],[Infinity,.37]],
 };
 
+// ---- 2026 federal standard deductions (for stdFed states) ----
+const FED_STD = { single: 16100, married: 32200, hoh: 24150 };
+
 // ---- Net investment income tax ----
 const NIIT_RATE = 0.038;
 const NIIT_THRESHOLD = { single: 200000, married: 250000, hoh: 200000 };
@@ -27,61 +30,65 @@ const NIIT_THRESHOLD = { single: 200000, married: 250000, hoh: 200000 };
 // ---- Primary-home exclusion (§121) ----
 const HOME_EXCLUSION = { single: 250000, married: 500000, hoh: 250000 };
 
-// ---- State income tax (2026 estimates; gains taxed as ordinary income) ----
+// ---- State income tax (2026, Tax Foundation "State Individual Income Tax
+// Rates and Brackets, 2026", verified 2026-07-21; gains taxed as ordinary income) ----
 // flat: single rate. brackets: [upperBound, rate] pairs (single filer);
-// married thresholds are doubled (common approximation). std: state standard deduction where included.
+// married thresholds are doubled (common approximation) unless noMult.
+// std: state standard deduction (single); stdM: married amount when not double;
+// stdFed: state uses the federal standard deduction.
 // pref: state gives long-term gains a break (exclusion / lower rate) not modeled here.
+// local: state has local income taxes in some areas (not modeled; disclosed).
 const STATES = {
-  AL: { name: "Alabama", brackets: [[500,.02],[3000,.04],[Infinity,.05]] },
+  AL: { name: "Alabama", local: true, std: 3000, stdM: 8500, brackets: [[500,.02],[3000,.04],[Infinity,.05]] },
   AK: { name: "Alaska", none: true },
-  AZ: { name: "Arizona", flat: .025 },
-  AR: { name: "Arkansas", pref: true, brackets: [[4500,.02],[Infinity,.039]] },
-  CA: { name: "California", std: 5540, brackets: [[10756,.01],[25499,.02],[40245,.04],[55866,.06],[70606,.08],[360659,.093],[432787,.103],[721314,.113],[Infinity,.123]] },
-  CO: { name: "Colorado", flat: .044 },
+  AZ: { name: "Arizona", std: 8350, flat: .025 },
+  AR: { name: "Arkansas", pref: true, std: 2470, brackets: [[4600,.02],[Infinity,.039]] },
+  CA: { name: "California", std: 5540, brackets: [[11079,.01],[26264,.02],[41452,.04],[57542,.06],[72724,.08],[371479,.093],[445771,.103],[742953,.113],[1000000,.123],[Infinity,.133]] },
+  CO: { name: "Colorado", stdFed: true, flat: .044 },
   CT: { name: "Connecticut", brackets: [[10000,.02],[50000,.045],[100000,.055],[200000,.06],[250000,.065],[500000,.069],[Infinity,.0699]] },
-  DE: { name: "Delaware", brackets: [[2000,0],[5000,.022],[10000,.039],[20000,.048],[25000,.052],[60000,.0555],[Infinity,.066]] },
-  DC: { name: "District of Columbia", brackets: [[10000,.04],[40000,.06],[60000,.065],[250000,.085],[500000,.0925],[1000000,.0975],[Infinity,.1075]] },
+  DE: { name: "Delaware", local: true, std: 3250, brackets: [[2000,0],[5000,.022],[10000,.039],[20000,.048],[25000,.052],[60000,.0555],[Infinity,.066]] },
+  DC: { name: "District of Columbia", stdFed: true, brackets: [[10000,.04],[40000,.06],[60000,.065],[250000,.085],[500000,.0925],[1000000,.0975],[Infinity,.1075]] },
   FL: { name: "Florida", none: true },
-  GA: { name: "Georgia", flat: .0519 },
-  HI: { name: "Hawaii", pref: true, brackets: [[9600,.014],[14400,.032],[19200,.055],[24000,.064],[36000,.068],[48000,.072],[125000,.076],[175000,.079],[225000,.0825],[275000,.09],[325000,.10],[Infinity,.11]] },
-  ID: { name: "Idaho", flat: .053 },
+  GA: { name: "Georgia", std: 12000, flat: .0519 },
+  HI: { name: "Hawaii", pref: true, std: 4400, brackets: [[9600,.014],[14400,.032],[19200,.055],[24000,.064],[36000,.068],[48000,.072],[125000,.076],[175000,.079],[225000,.0825],[275000,.09],[325000,.10],[Infinity,.11]] },
+  ID: { name: "Idaho", stdFed: true, flat: .053 },
   IL: { name: "Illinois", flat: .0495 },
-  IN: { name: "Indiana", flat: .03 },
-  IA: { name: "Iowa", flat: .038 },
-  KS: { name: "Kansas", brackets: [[23000,.052],[Infinity,.0558]] },
-  KY: { name: "Kentucky", flat: .035 },
-  LA: { name: "Louisiana", flat: .03 },
-  ME: { name: "Maine", brackets: [[26800,.058],[63450,.0675],[Infinity,.0715]] },
-  MD: { name: "Maryland", local: true, brackets: [[1000,.02],[2000,.03],[3000,.04],[100000,.0475],[125000,.05],[150000,.0525],[250000,.055],[Infinity,.0575]] },
-  MA: { name: "Massachusetts", stShort: .085, flat: .05 },
-  MI: { name: "Michigan", flat: .0425 },
-  MN: { name: "Minnesota", brackets: [[32570,.0535],[106990,.068],[198630,.0785],[Infinity,.0985]] },
-  MS: { name: "Mississippi", flat: .044 },
-  MO: { name: "Missouri", brackets: [[1313,0],[2626,.02],[3939,.025],[5252,.03],[6565,.035],[7878,.04],[9191,.045],[Infinity,.047]] },
-  MT: { name: "Montana", pref: true, brackets: [[21100,.047],[Infinity,.059]] },
-  NE: { name: "Nebraska", brackets: [[4030,.0246],[24120,.0351],[38870,.0501],[Infinity,.052]] },
+  IN: { name: "Indiana", local: true, flat: .0295 },
+  IA: { name: "Iowa", stdFed: true, flat: .038 },
+  KS: { name: "Kansas", std: 3605, stdM: 8240, brackets: [[23000,.052],[Infinity,.0558]] },
+  KY: { name: "Kentucky", local: true, std: 3360, stdM: 3360, flat: .035 },
+  LA: { name: "Louisiana", std: 12875, flat: .03 },
+  ME: { name: "Maine", std: 8350, brackets: [[27400,.058],[64850,.0675],[Infinity,.0715]] },
+  MD: { name: "Maryland", local: true, std: 3350, brackets: [[1000,.02],[2000,.03],[3000,.04],[100000,.0475],[125000,.05],[150000,.0525],[250000,.055],[500000,.0575],[1000000,.0625],[Infinity,.065]] },
+  MA: { name: "Massachusetts", stShort: .085, noMult: true, brackets: [[1083150,.05],[Infinity,.09]] },
+  MI: { name: "Michigan", local: true, flat: .0425 },
+  MN: { name: "Minnesota", std: 15300, brackets: [[33310,.0535],[109430,.068],[203150,.0785],[Infinity,.0985]] },
+  MS: { name: "Mississippi", std: 2300, flat: .04 },
+  MO: { name: "Missouri", local: true, stdFed: true, brackets: [[1348,0],[2696,.02],[4044,.025],[5392,.03],[6740,.035],[8088,.04],[9436,.045],[Infinity,.047]] },
+  MT: { name: "Montana", pref: true, stdFed: true, brackets: [[47500,.047],[Infinity,.0565]] },
+  NE: { name: "Nebraska", std: 8850, brackets: [[4130,.0246],[24760,.0351],[Infinity,.0455]] },
   NV: { name: "Nevada", none: true },
   NH: { name: "New Hampshire", none: true },
   NJ: { name: "New Jersey", brackets: [[20000,.014],[35000,.0175],[40000,.035],[75000,.05525],[500000,.0637],[1000000,.0897],[Infinity,.1075]] },
-  NM: { name: "New Mexico", pref: true, brackets: [[5500,.015],[16500,.032],[33500,.043],[66500,.047],[210000,.049],[Infinity,.059]] },
-  NY: { name: "New York", std: 8000, brackets: [[8500,.04],[11700,.045],[13900,.0525],[80650,.055],[215400,.06],[1077550,.0685],[5000000,.0965],[Infinity,.109]] },
-  NC: { name: "North Carolina", flat: .0399 },
-  ND: { name: "North Dakota", pref: true, brackets: [[48475,0],[244825,.0195],[Infinity,.025]] },
-  OH: { name: "Ohio", brackets: [[26050,0],[Infinity,.0275]] },
-  OK: { name: "Oklahoma", brackets: [[1000,.0025],[2500,.0075],[3750,.0175],[4900,.0275],[7200,.0375],[Infinity,.0475]] },
-  OR: { name: "Oregon", std: 2800, brackets: [[4400,.0475],[11050,.0675],[125000,.0875],[Infinity,.099]] },
+  NM: { name: "New Mexico", pref: true, stdFed: true, brackets: [[5500,.015],[16500,.032],[33500,.043],[66500,.047],[210000,.049],[Infinity,.059]] },
+  NY: { name: "New York", local: true, std: 8000, stdM: 16050, brackets: [[8500,.039],[11700,.044],[13900,.0515],[80650,.054],[215400,.059],[1077550,.0685],[5000000,.0965],[25000000,.103],[Infinity,.109]] },
+  NC: { name: "North Carolina", std: 12750, flat: .0399 },
+  ND: { name: "North Dakota", pref: true, stdFed: true, brackets: [[48475,0],[244825,.0195],[Infinity,.025]] },
+  OH: { name: "Ohio", local: true, brackets: [[26050,0],[Infinity,.0275]] },
+  OK: { name: "Oklahoma", std: 6350, brackets: [[3750,0],[4900,.025],[7200,.035],[Infinity,.045]] },
+  OR: { name: "Oregon", local: true, std: 2910, brackets: [[4550,.0475],[11400,.0675],[125000,.0875],[Infinity,.099]] },
   PA: { name: "Pennsylvania", local: true, flat: .0307 },
-  RI: { name: "Rhode Island", brackets: [[79900,.0375],[181650,.0475],[Infinity,.0599]] },
-  SC: { name: "South Carolina", pref: true, brackets: [[3560,0],[17830,.03],[Infinity,.062]] },
+  RI: { name: "Rhode Island", std: 11200, brackets: [[82050,.0375],[186450,.0475],[Infinity,.0599]] },
+  SC: { name: "South Carolina", pref: true, std: 8350, brackets: [[3640,0],[18230,.03],[Infinity,.06]] },
   SD: { name: "South Dakota", none: true },
   TN: { name: "Tennessee", none: true },
   TX: { name: "Texas", none: true },
   UT: { name: "Utah", flat: .045 },
-  VT: { name: "Vermont", brackets: [[47900,.0335],[116000,.066],[242000,.076],[Infinity,.0875]] },
-  VA: { name: "Virginia", brackets: [[3000,.02],[5000,.03],[17000,.05],[Infinity,.0575]] },
+  VT: { name: "Vermont", std: 7650, brackets: [[49400,.0335],[119700,.066],[249700,.076],[Infinity,.0875]] },
+  VA: { name: "Virginia", std: 8750, brackets: [[3000,.02],[5000,.03],[17000,.05],[Infinity,.0575]] },
   WA: { name: "Washington", none: true, waCapGains: true },
-  WV: { name: "West Virginia", brackets: [[10000,.0222],[25000,.0296],[40000,.0333],[60000,.0444],[Infinity,.0482]] },
-  WI: { name: "Wisconsin", pref: true, brackets: [[14320,.035],[28640,.044],[315310,.053],[Infinity,.0765]] },
+  WV: { name: "West Virginia", local: true, brackets: [[10000,.0222],[25000,.0296],[40000,.0333],[60000,.0444],[Infinity,.0482]] },
+  WI: { name: "Wisconsin", pref: true, std: 13960, stdM: 25840, brackets: [[15110,.035],[51950,.044],[332720,.053],[Infinity,.0765]] },
   WY: { name: "Wyoming", none: true },
 };
 
@@ -165,9 +172,12 @@ function stateGainTax(code, ordinary, gain, filing, isLong, isHome) {
   }
   if (s.none) return 0;
   if (s.stShort && !isLong) return gain * s.stShort; // MA 8.5% short-term rate
-  const mult = filing === "married" ? 2 : 1;
-  const lo = Math.max(0, ordinary - (s.std || 0) * mult);
-  const hi = Math.max(0, ordinary + gain - (s.std || 0) * mult);
+  const mult = (!s.noMult && filing === "married") ? 2 : 1;
+  let std = 0;
+  if (s.stdFed) std = FED_STD[filing];
+  else if (s.std) std = filing === "married" ? (s.stdM || s.std * 2) : s.std;
+  const lo = Math.max(0, ordinary - std);
+  const hi = Math.max(0, ordinary + gain - std);
   if (s.flat) return (hi - lo) * s.flat;
   return bracketTax(hi, s.brackets, mult) - bracketTax(lo, s.brackets, mult);
 }
