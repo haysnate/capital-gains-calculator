@@ -25,7 +25,7 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5812381332044887" crossorigin="anonymous"></script>
   <meta name="google-adsense-account" content="ca-pub-5812381332044887" />
   <script type="application/ld+json">
-  {
+{
   "@context": "https://schema.org",
   "@graph": [
     {
@@ -62,7 +62,23 @@
       "logo": {
         "@type": "ImageObject",
         "url": "https://capitalgainscalculatorhq.com/og-image.jpg"
+      },
+      "founder": {
+        "@id": "https://capitalgainscalculatorhq.com/#nathan"
+      },
+      "email": "support@capitalgainscalculatorhq.com",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "support@capitalgainscalculatorhq.com",
+        "contactType": "customer support"
       }
+    },
+    {
+      "@type": "Person",
+      "@id": "https://capitalgainscalculatorhq.com/#nathan",
+      "name": "Nathan Hays",
+      "url": "https://capitalgainscalculatorhq.com/about",
+      "description": "Builder and maintainer of Capital Gains Calculator HQ, part of a family of free, single-purpose web tools. Independent: no brokerage, advisory, or tax-prep affiliation."
     }
   ]
 }
@@ -163,16 +179,23 @@
       </div>
     </main>
 
+    <section class="doc" style="max-width:760px;padding:20px 24px">
+      <p style="font-size:0.94rem;margin:0 0 8px">Sold stocks, crypto, property, or your home? This calculator estimates the 2026 federal capital gains tax, the 3.8% net investment income tax, and your state's tax on the profit. It always figures the sale both ways, short-term and long-term, and shows exactly how much holding past the one-year mark saves you. Everything runs in your browser; nothing you type is uploaded, and there is no sign-up.</p>
+      <p style="font-size:0.92rem;margin:0">Digging deeper? <a href="guide">capital gains tax explained</a> &middot; <a href="home-sale-exclusion">the home-sale exclusion</a> &middot; <a href="faq">capital gains FAQ</a></p>
+    </section>
+
     <!-- Google AdSense slot (added at monetization step) -->
-    <div class="adslot" aria-hidden="true">Ad space</div>
+    <div class="adslot" aria-hidden="true"></div>
 
     <footer class="site-footer">
-      <span class="copy">© <span id="year">2026</span> Capital Gains Calculator</span>
-      <a href="guide">Guide</a>
-      <a href="faq">FAQ</a>
-      <a href="about">About</a>
-      <a href="privacy">Privacy</a>
-    </footer>
+    <span class="copy">© <span id="year">2026</span> Capital Gains Calculator</span>
+    <a href="/">Home</a>
+    <a href="guide">Guide</a>
+    <a href="home-sale-exclusion">Home Sale Exclusion</a>
+    <a href="faq">FAQ</a>
+    <a href="about">About</a>
+    <a href="privacy">Privacy</a>
+  </footer>
   </div>
 
   <script>{const y=document.getElementById("year");if(y)y.textContent=new Date().getFullYear();}</script>

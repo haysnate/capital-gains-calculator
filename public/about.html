@@ -34,6 +34,38 @@
       "name": "About Capital Gains Tax Calculator",
       "isPartOf": {
         "@id": "https://capitalgainscalculatorhq.com/#website"
+      },
+      "publisher": {
+        "@id": "https://capitalgainscalculatorhq.com/#organization"
+      },
+      "mainEntity": {
+        "@id": "https://capitalgainscalculatorhq.com/#nathan"
+      }
+    },
+    {
+      "@type": "Person",
+      "@id": "https://capitalgainscalculatorhq.com/#nathan",
+      "name": "Nathan Hays",
+      "url": "https://capitalgainscalculatorhq.com/about",
+      "description": "Builder and maintainer of Capital Gains Calculator HQ, part of a family of free, single-purpose web tools. Independent: no brokerage, advisory, or tax-prep affiliation."
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://capitalgainscalculatorhq.com/#organization",
+      "name": "Capital Gains Calculator HQ",
+      "url": "https://capitalgainscalculatorhq.com/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://capitalgainscalculatorhq.com/og-image.jpg"
+      },
+      "founder": {
+        "@id": "https://capitalgainscalculatorhq.com/#nathan"
+      },
+      "email": "support@capitalgainscalculatorhq.com",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "support@capitalgainscalculatorhq.com",
+        "contactType": "customer support"
       }
     }
   ]
@@ -55,6 +87,8 @@
     <p>The single biggest lever on capital gains tax is your holding period. The calculator applies 2026 ordinary income brackets to short-term gains and the 0% / 15% / 20% long-term brackets to assets held over a year, and it shows exactly how much holding past the one-year mark saves you.</p>
     <h2>Home sales handled</h2>
     <p>Selling your primary residence? One checkbox applies the IRS Section 121 exclusion, removing up to $250,000 of gain ($500,000 married filing jointly) before any tax is calculated.</p>
+    <h2>Who runs this site</h2>
+    <p>Capital Gains Calculator HQ is built and maintained by Nathan Hays, who makes a family of free, single-purpose web tools. He is not a broker, advisor, or tax preparer and the site sells nothing; its only job is to compute honest numbers from published IRS and state figures. Questions and corrections are welcome at <a href="mailto:support@capitalgainscalculatorhq.com">support@capitalgainscalculatorhq.com</a>.</p>
     <h2>Private and free</h2>
     <p>Every calculation runs locally in your browser. Nothing you enter is uploaded, stored, or sent anywhere. No sign-up, nothing to install. For details on the cookies used by advertising, see our <a href="privacy">Privacy Policy</a>.</p>
     <h2>Important disclaimer</h2>
@@ -74,6 +108,10 @@
   <footer class="site-footer">
     <span class="copy">© <span id="year">2026</span> Capital Gains Calculator</span>
     <a href="/">Home</a>
+    <a href="guide">Guide</a>
+    <a href="home-sale-exclusion">Home Sale Exclusion</a>
+    <a href="faq">FAQ</a>
+    <a href="about">About</a>
     <a href="privacy">Privacy</a>
   </footer>
   <script>{const y=document.getElementById("year");if(y)y.textContent=new Date().getFullYear();}</script>

@@ -76,7 +76,7 @@ select.input-el:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(-
 
 .seg { display: flex; background: var(--input-bg); border: 2px solid var(--border); border-radius: var(--radius-sm); padding: 3px; gap: 3px; }
 .seg button {
-  flex: 1; padding: 10px 4px; border: none; border-radius: 9px; background: transparent; cursor: pointer;
+  flex: 1; padding: 10px 4px; min-height: 44px; border: none; border-radius: 9px; background: transparent; cursor: pointer;
   font-size: 0.85rem; font-weight: 700; color: var(--text-muted); font-family: inherit;
   transition: background 0.12s ease, color 0.12s ease;
 }
@@ -174,3 +174,8 @@ select.input-el:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(-
   background-attachment: local, local, scroll, scroll;
 }
 .doc .table-wrap table { background: transparent; }
+
+/* bylines on content pages (E-E-A-T layer, Phase 2 2026-07-26) */
+.byline { color: var(--text-muted, #64748b); font-size: 0.85rem; font-weight: 600; margin: -6px 0 14px; }
+.byline a { color: inherit; text-decoration: none; border-bottom: 1px solid rgba(148,163,184,.4); }
+.byline a:hover { color: var(--accent); border-color: var(--accent); }
