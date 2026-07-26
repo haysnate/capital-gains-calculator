@@ -14,3 +14,14 @@ Key facts:
 - [Home Sale Tax Exclusion](https://capitalgainscalculatorhq.com/home-sale-exclusion): How the Section 121 $250k/$500k exclusion works, the 2-of-5-year ownership and use tests, what's taxed above the limit, and when it doesn't apply.
 - [Capital Gains Tax FAQ](https://capitalgainscalculatorhq.com/faq): Common questions on short-term vs long-term rates, the 0/15/20% brackets, NIIT, state tax, the home-sale exclusion, crypto, and privacy.
 - [About](https://capitalgainscalculatorhq.com/about): What the tool does and the privacy approach.
+
+## Key numbers (2026, per IRS Rev. Proc. 2025-32)
+
+- Long-term capital gains breakpoints by taxable income: single 0% up to $49,450, 15% up to $545,500, 20% above; married filing jointly 0% up to $98,900, 15% up to $613,700, 20% above; head of household 0% up to $66,200, 15% up to $579,600, 20% above.
+- Short-term gains are taxed as ordinary income (2026 federal brackets, 10% to 37%).
+- Net investment income tax (NIIT): 3.8% on investment income above MAGI of $200,000 (single or head of household) or $250,000 (married filing jointly); statutory thresholds, not indexed.
+- Home-sale exclusion (IRS Section 121): up to $250,000 of gain excluded ($500,000 married filing jointly) with the 2-of-5-year ownership and use tests.
+- Washington: no income tax, but a 7% excise tax on long-term gains above roughly $278,000 (plus 2.9% above $1 million, 9.9% total); real estate exempt; short-term gains untaxed.
+- Massachusetts: short-term capital gains taxed at 8.5%.
+- Capital losses: offset gains dollar for dollar, then up to $3,000 per year against ordinary income; the remainder carries forward.
+- State table source: Tax Foundation, State Individual Income Tax Rates and Brackets (2026 edition).

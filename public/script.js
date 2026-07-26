@@ -119,9 +119,11 @@ function num(node) {
   const n = parseFloat(v);
   return isFinite(n) && n >= 0 ? n : 0;
 }
+const _fmtCache = {};
 function money(n, dp = 0) {
   if (!isFinite(n)) n = 0;
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: dp, maximumFractionDigits: dp }).format(n);
+  if (!_fmtCache[dp]) _fmtCache[dp] = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: dp, maximumFractionDigits: dp });
+  return _fmtCache[dp].format(n);
 }
 
 const COLORS = {};

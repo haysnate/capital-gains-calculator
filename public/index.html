@@ -9,6 +9,7 @@
   <link rel="canonical" href="https://capitalgainscalculatorhq.com/" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Capital Gains Calculator HQ" />
   <meta property="og:title" content="Capital Gains Tax Calculator 2026 - Federal &amp; State" />
   <meta property="og:description" content="Estimate short- and long-term capital gains tax, NIIT, and state tax, with a hold-longer savings comparison." />
   <meta property="og:url" content="https://capitalgainscalculatorhq.com/" />
@@ -18,23 +19,53 @@
   <meta property="og:image:alt" content="Capital Gains Calculator: 2026 federal and state tax on your sale" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:image" content="https://capitalgainscalculatorhq.com/og-image.jpg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preload" href="/fonts/inter-var-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="styles.css" />
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5812381332044887" crossorigin="anonymous"></script>
   <meta name="google-adsense-account" content="ca-pub-5812381332044887" />
   <script type="application/ld+json">
   {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "Capital Gains Tax Calculator",
-    "applicationCategory": "FinanceApplication",
-    "operatingSystem": "Any",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "description": "Free 2026 capital gains tax calculator with short-term vs long-term comparison, federal 0/15/20% brackets, 3.8% NIIT, home-sale exclusion, and state tax estimates for all 50 states."
-  }
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "@id": "https://capitalgainscalculatorhq.com/#webapp",
+      "url": "https://capitalgainscalculatorhq.com/",
+      "name": "Capital Gains Tax Calculator",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "Free 2026 capital gains tax calculator with short-term vs long-term comparison, federal 0/15/20% brackets, 3.8% NIIT, home-sale exclusion, and state tax estimates for all 50 states.",
+      "isPartOf": {
+        "@id": "https://capitalgainscalculatorhq.com/#website"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://capitalgainscalculatorhq.com/#website",
+      "url": "https://capitalgainscalculatorhq.com/",
+      "name": "Capital Gains Calculator HQ",
+      "publisher": {
+        "@id": "https://capitalgainscalculatorhq.com/#organization"
+      }
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://capitalgainscalculatorhq.com/#organization",
+      "name": "Capital Gains Calculator HQ",
+      "url": "https://capitalgainscalculatorhq.com/",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://capitalgainscalculatorhq.com/og-image.jpg"
+      }
+    }
+  ]
+}
   </script>
 </head>
 <body>
@@ -145,6 +176,6 @@
   </div>
 
   <script>{const y=document.getElementById("year");if(y)y.textContent=new Date().getFullYear();}</script>
-  <script src="script.js"></script>
+  <script src="script.js?v=2"></script>
 </body>
 </html>

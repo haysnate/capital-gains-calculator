@@ -1,3 +1,13 @@
+/* Inter self-hosted (single variable font, latin subset): removes the
+   render-blocking Google Fonts two-hop chain sitewide */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/inter-var-latin.woff2") format("woff2");
+}
+
 :root {
   --accent: #e11d48;
   --accent-dark: #be123c;
@@ -150,3 +160,17 @@ select.input-el:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(-
   .site-footer { justify-content: center; flex-wrap: wrap; gap: 12px; }
   .site-footer .copy { margin-right: 0; width: 100%; text-align: center; }
 }
+
+/* scrolling-shadow cue on wide table wraps: shadows render only when the
+   table actually overflows (375px scroll-cue finding, audit 2026-07-26) */
+.doc .table-wrap {
+  background:
+    linear-gradient(to right, var(--card-bg) 30%, rgba(255,255,255,0)) 0 0,
+    linear-gradient(to left, var(--card-bg) 30%, rgba(255,255,255,0)) 100% 0,
+    linear-gradient(to right, rgba(15,23,42,.16), rgba(15,23,42,0)) 0 0,
+    linear-gradient(to left, rgba(15,23,42,.16), rgba(15,23,42,0)) 100% 0;
+  background-repeat: no-repeat;
+  background-size: 44px 100%, 44px 100%, 14px 100%, 14px 100%;
+  background-attachment: local, local, scroll, scroll;
+}
+.doc .table-wrap table { background: transparent; }
