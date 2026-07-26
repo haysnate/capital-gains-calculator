@@ -11,7 +11,8 @@ import sys
 from pathlib import Path
 
 PUB = Path(__file__).parent / "public"
-PAGES = ["guide.html", "faq.html", "home-sale-exclusion.html"]
+PAGES = ["guide.html", "faq.html", "home-sale-exclusion.html",
+         "inherited-property-capital-gains.html", "crypto-capital-gains-tax.html"]
 
 TAG_RE = re.compile(r"<[^>]+>")
 WS_RE = re.compile(r"\s+")

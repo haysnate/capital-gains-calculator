@@ -306,7 +306,10 @@ Object.keys(STATES).sort((a, b) => STATES[a].name.localeCompare(STATES[b].name))
   o.value = code; o.textContent = STATES[code].name;
   el.state.appendChild(o);
 });
-el.state.value = "TX";
+const _qsState = (new URLSearchParams(location.search).get("state") || "").toUpperCase();
+el.state.value = (typeof window.PRESET_STATE === "string" && STATES[window.PRESET_STATE]) ? window.PRESET_STATE
+  : STATES[_qsState] ? _qsState : "TX";
+if (window.PRESET_HOME) el.homeSale.checked = true;
 
 // ---- events ----
 el.termShort.addEventListener("click", () => {

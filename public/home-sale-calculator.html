@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Capital Gains Tax Calculator 2026 - Federal &amp; State</title>
-  <meta name="description" content="Free 2026 capital gains tax calculator. Instantly estimate federal short-term and long-term capital gains tax, the 3.8% NIIT, and state tax on stocks, crypto, or a home sale." />
+  <title>Home Sale Capital Gains Calculator 2026 - With $250k/$500k Exclusion</title>
+  <meta name="description" content="Free 2026 home sale capital gains calculator. Applies the $250k/$500k Section 121 exclusion, then estimates federal tax, NIIT, and state tax on the rest." />
   <meta name="theme-color" content="#0f172a" />
-  <link rel="canonical" href="https://capitalgainscalculatorhq.com/" />
+  <link rel="canonical" href="https://capitalgainscalculatorhq.com/home-sale-calculator" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Capital Gains Calculator HQ" />
-  <meta property="og:title" content="Capital Gains Tax Calculator 2026 - Federal &amp; State" />
-  <meta property="og:description" content="Estimate short- and long-term capital gains tax, NIIT, and state tax, with a hold-longer savings comparison." />
-  <meta property="og:url" content="https://capitalgainscalculatorhq.com/" />
+  <meta property="og:title" content="Home Sale Capital Gains Calculator 2026 - With $250k/$500k Exclusion" />
+  <meta property="og:description" content="Applies the Section 121 exclusion first, then estimates federal, NIIT, and state tax on the remaining gain." />
+  <meta property="og:url" content="https://capitalgainscalculatorhq.com/home-sale-calculator" />
   <meta property="og:image" content="https://capitalgainscalculatorhq.com/og-image.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -30,9 +30,9 @@
   "@graph": [
     {
       "@type": "WebApplication",
-      "@id": "https://capitalgainscalculatorhq.com/#webapp",
-      "url": "https://capitalgainscalculatorhq.com/",
-      "name": "Capital Gains Tax Calculator",
+      "@id": "https://capitalgainscalculatorhq.com/home-sale-calculator#webapp",
+      "url": "https://capitalgainscalculatorhq.com/home-sale-calculator",
+      "name": "Home Sale Capital Gains Calculator",
       "applicationCategory": "FinanceApplication",
       "operatingSystem": "Any",
       "offers": {
@@ -40,45 +40,27 @@
         "price": "0",
         "priceCurrency": "USD"
       },
-      "description": "Free 2026 capital gains tax calculator with short-term vs long-term comparison, federal 0/15/20% brackets, 3.8% NIIT, home-sale exclusion, and state tax estimates for all 50 states.",
+      "description": "Free 2026 home sale capital gains calculator. Applies the $250k/$500k Section 121 exclusion, then estimates federal tax, NIIT, and state tax on the rest.",
       "isPartOf": {
         "@id": "https://capitalgainscalculatorhq.com/#website"
       }
     },
     {
-      "@type": "WebSite",
-      "@id": "https://capitalgainscalculatorhq.com/#website",
-      "url": "https://capitalgainscalculatorhq.com/",
-      "name": "Capital Gains Calculator HQ",
-      "publisher": {
-        "@id": "https://capitalgainscalculatorhq.com/#organization"
-      }
-    },
-    {
-      "@type": "Organization",
-      "@id": "https://capitalgainscalculatorhq.com/#organization",
-      "name": "Capital Gains Calculator HQ",
-      "url": "https://capitalgainscalculatorhq.com/",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://capitalgainscalculatorhq.com/og-image.jpg"
-      },
-      "founder": {
-        "@id": "https://capitalgainscalculatorhq.com/#nathan"
-      },
-      "email": "support@capitalgainscalculatorhq.com",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "email": "support@capitalgainscalculatorhq.com",
-        "contactType": "customer support"
-      }
-    },
-    {
-      "@type": "Person",
-      "@id": "https://capitalgainscalculatorhq.com/#nathan",
-      "name": "Nathan Hays",
-      "url": "https://capitalgainscalculatorhq.com/about",
-      "description": "Builder and maintainer of Capital Gains Calculator HQ, part of a family of free, single-purpose web tools. Independent: no brokerage, advisory, or tax-prep affiliation."
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Capital Gains Calculator",
+          "item": "https://capitalgainscalculatorhq.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Home Sale Calculator",
+          "item": "https://capitalgainscalculatorhq.com/home-sale-calculator"
+        }
+      ]
     }
   ]
 }
@@ -94,8 +76,8 @@
           </svg>
         </div>
         <div class="card__heading">
-          <h1>Capital Gains Tax Calculator</h1>
-          <p class="subtitle">2026 federal &amp; state tax on your sale, in seconds.</p>
+          <h1>Home Sale Capital Gains Calculator</h1>
+          <p class="subtitle">2026 tax on your home sale, with the $250k/$500k exclusion applied.</p>
         </div>
       </header>
 
@@ -180,9 +162,8 @@
     </main>
 
     <section class="doc" style="max-width:760px;padding:20px 24px">
-      <p style="font-size:0.94rem;margin:0 0 8px">Sold stocks, crypto, property, or your home? This calculator estimates the 2026 federal capital gains tax, the 3.8% net investment income tax, and your state's tax on the profit. It always figures the sale both ways, short-term and long-term, and shows exactly how much holding past the one-year mark saves you. Everything runs in your browser; nothing you type is uploaded, and there is no sign-up.</p>
-      <p style="font-size:0.92rem;margin:0 0 6px">Digging deeper? <a href="guide">capital gains tax explained</a> &middot; <a href="state-capital-gains-tax">state-by-state rates</a> &middot; <a href="home-sale-exclusion">the home-sale exclusion</a> &middot; <a href="inherited-property-capital-gains">inherited property</a> &middot; <a href="crypto-capital-gains-tax">crypto</a> &middot; <a href="faq">FAQ</a></p>
-      <p style="font-size:0.92rem;margin:0">Selling your home? Try the focused <a href="home-sale-calculator">home sale capital gains calculator</a>.</p>
+      <p style="font-size:0.94rem;margin:0 0 8px">Selling your primary home? Enter what you paid and what you're selling for, and this calculator applies the IRS Section 121 exclusion first ($250,000 of gain tax-free if single, $500,000 married filing jointly, with the 2-of-5-year tests), then estimates federal capital gains tax, the 3.8% NIIT, and your state's tax on whatever is left. Example: a married couple with $80,000 of taxable income and a $650,000 gain excludes $500,000, leaving $150,000 taxable and roughly $19,665 of federal tax. Nothing you type is uploaded, and there is no sign-up.</p>
+      <p style="font-size:0.92rem;margin:0">The details: <a href="home-sale-exclusion">how the home-sale exclusion works</a> &middot; <a href="guide">capital gains tax explained</a> &middot; <a href="faq">FAQ</a></p>
     </section>
 
     <!-- Google AdSense slot (added at monetization step) -->
@@ -201,6 +182,7 @@
   </div>
 
   <script>{const y=document.getElementById("year");if(y)y.textContent=new Date().getFullYear();}</script>
+  <script>window.PRESET_HOME = true;</script>
   <script src="script.js?v=3"></script>
 </body>
 </html>

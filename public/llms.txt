@@ -13,6 +13,10 @@ Key facts:
 - [Capital Gains Tax Explained](https://capitalgainscalculatorhq.com/guide): Short-term vs long-term, how gains stack on income, NIIT, the home-sale exclusion, and legal ways to pay less, for 2026.
 - [Home Sale Tax Exclusion](https://capitalgainscalculatorhq.com/home-sale-exclusion): How the Section 121 $250k/$500k exclusion works, the 2-of-5-year ownership and use tests, what's taxed above the limit, and when it doesn't apply.
 - [Capital Gains Tax FAQ](https://capitalgainscalculatorhq.com/faq): Common questions on short-term vs long-term rates, the 0/15/20% brackets, NIIT, state tax, the home-sale exclusion, crypto, and privacy.
+- [Home Sale Capital Gains Calculator](https://capitalgainscalculatorhq.com/home-sale-calculator): The calculator with the Section 121 exclusion pre-applied for primary-home sales.
+- [State Capital Gains Tax Rates](https://capitalgainscalculatorhq.com/state-capital-gains-tax): How all 50 states and DC tax capital gains in 2026, with links to a dedicated page per state at /<state>-capital-gains-tax.
+- [Capital Gains on Inherited Property](https://capitalgainscalculatorhq.com/inherited-property-capital-gains): The stepped-up basis, automatic long-term treatment, and what happens when you sell.
+- [Crypto Capital Gains Tax](https://capitalgainscalculatorhq.com/crypto-capital-gains-tax): Property treatment, taxable events including crypto-to-crypto trades, and worked examples.
 - [About](https://capitalgainscalculatorhq.com/about): What the tool does and the privacy approach.
 
 ## Key numbers (2026, per IRS Rev. Proc. 2025-32)
