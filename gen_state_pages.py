@@ -105,6 +105,12 @@ def state_gain_tax(code, ordinary, gain, filing, is_long, is_home, is_real_estat
             base, start, span = s["sciad"][filing]
             frac = max(0, agi - start) / span
             d = 0 if frac >= 1 else base - int(base * frac / 10) * 10
+        elif s.get("stdSlide"):
+            def _slide(p2):
+                return max(0, p2[0] - p2[2] * max(0, agi - p2[1]))
+            d = _slide(s["stdSlide"][filing])
+            if filing == "hoh":
+                d = max(d, _slide(s["stdSlide"]["single"]))
         elif s.get("stdFed"):
             d = FED_STD[filing]
         elif s.get("std"):
@@ -258,6 +264,10 @@ def treatment_sentence(code):
 
 def std_sentence(code, name):
     s = STATES[code]
+    if s.get("stdSlide"):
+        b = s["stdSlide"]["single"]
+        return (f" The estimate subtracts {name}'s sliding-scale standard deduction"
+                f" (up to {money(b[0])} single, shrinking as income rises, per the latest published table).")
     if s.get("sciad"):
         b = s["sciad"]
         return (f" The estimate subtracts {name}'s Income Adjusted Deduction ({money(b['single'][0])} single / "

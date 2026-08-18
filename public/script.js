@@ -44,6 +44,8 @@ const HOME_EXCLUSION = { single: 250000, married: 500000, hoh: 250000 };
 // sciad: South Carolina's Income Adjusted Deduction [base, phaseStart, span];
 //   the reduction rounds DOWN to the nearest $10 per the statute.
 // dedLong: flat-dollar deduction against long-term gains (NM: up to $2,500).
+// stdSlide: WI sliding-scale deduction [base, phaseStart, rate] per status
+// (2025 DOR table; HOH converges onto the single line).
 // local: state has local income taxes in some areas (not modeled; disclosed).
 const STATES = {
   AL: { name: "Alabama", local: true, std: 3000, stdM: 8500, brackets: [[500,.02],[3000,.04],[Infinity,.05]] },
@@ -95,7 +97,7 @@ const STATES = {
   VA: { name: "Virginia", std: 8750, brackets: [[3000,.02],[5000,.03],[17000,.05],[Infinity,.0575]] },
   WA: { name: "Washington", none: true, waCapGains: true },
   WV: { name: "West Virginia", local: true, noMult: true, brackets: [[10000,.0211],[25000,.0281],[40000,.0316],[60000,.0422],[Infinity,.0458]] },
-  WI: { name: "Wisconsin", exclLong: .30, std: 13960, stdM: 25840, brackets: [[15110,.035],[51950,.044],[332720,.053],[Infinity,.0765]] },
+  WI: { name: "Wisconsin", exclLong: .30, stdSlide: { single: [13560,19550,.12], married: [25110,28210,.19778], hoh: [17520,19550,.22515] }, brackets: [[15110,.035],[51950,.044],[332720,.053],[Infinity,.0765]] },
   WY: { name: "Wyoming", none: true },
 };
 
@@ -223,6 +225,11 @@ function stateGainTax(code, ordinary, gain, filing, isLong, isHome, isRealEstate
       const frac = Math.max(0, agi - start) / span;
       // statutory rounding: the reduction rounds down to the nearest $10
       d = frac >= 1 ? 0 : base - Math.floor(base * frac / 10) * 10;
+    } else if (s.stdSlide) {
+      // WI sliding-scale deduction (2025 DOR table; 2026 not yet published)
+      const slide = (p2) => Math.max(0, p2[0] - p2[2] * Math.max(0, agi - p2[1]));
+      d = slide(s.stdSlide[filing]);
+      if (filing === "hoh") d = Math.max(d, slide(s.stdSlide.single));
     } else if (s.stdFed) {
       d = FED_STD[filing];
     } else if (s.std) {
@@ -366,7 +373,7 @@ function calc() {
   if (s?.sciad) note += "South Carolina's Income Adjusted Deduction and its income phase-out are included, using your entries as a stand-in for federal AGI. ";
   if (stateCode === "NM" && isLong) note += "New Mexico's deduction of up to $2,500 of net capital gains is included; the larger 40% alternative for New Mexico business sales is not modeled. ";
   if (s?.local) note += s.name + " also has local income taxes not included. ";
-  if (stateCode === "WI") note += "Wisconsin's standard deduction shrinks as income rises (not modeled), so state figures run low at higher incomes. ";
+  if (s?.stdSlide) note += s.name + "'s sliding-scale standard deduction (it shrinks as income rises) is included, using the latest published table. ";
   if (s?.stdPhase) note += s.name + "'s standard-deduction phase-out at higher incomes is included. ";
   if (isHome && !isLong) note += "The home-sale exclusion requires 2+ years of ownership and use, so it cannot apply to a short-term sale and is NOT applied here. ";
   if (isHome && isLong) note += "The home-sale exclusion assumes you owned and used the home 2 of the last 5 years and have not used the exclusion in the last 2 years. ";
