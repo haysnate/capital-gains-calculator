@@ -344,7 +344,7 @@ def state_page(code):
     if s.get("mtLtcg"):
         extra.append(f"<p><strong>Good news if you hold long.</strong> {name} taxes net long-term capital gains on its own lower rate table (3.0% up to {money(s['mtLtcg']['single'])} for single filers, 4.1% above), and the calculator models it.</p>")
     if code == "NM":
-        extra.append(f"<p><strong>A modest break on any gain.</strong> Since 2025 {name} allows a deduction of the greater of up to $2,500 of net capital gains (any asset, modeled by the calculator) or 40% of up to $1 million of gain from selling a New Mexico business (not modeled).</p>")
+        extra.append(f"<p><strong>A modest break on long-term gains.</strong> Since 2025 {name} allows a deduction of the greater of up to $2,500 of net capital gains (long-term gains on any asset, modeled by the calculator) or 40% of up to $1 million of gain from selling a New Mexico business (not modeled). Short-term gains get no deduction.</p>")
     if s.get("local"):
         extra.append(f"<p>Parts of {name} also levy local income taxes that are not included in these estimates.</p>")
 
