@@ -67,31 +67,52 @@ def fed_short_tax(ordinary, gain, filing):
     return bracket_tax(ordinary + gain, b, 1) - bracket_tax(ordinary, b, 1)
 
 def niit_tax(ordinary, gain, filing):
-    magi = ordinary + gain
+    # mirrors niitTax(): MAGI ~ taxable income + standard deduction + gain
+    magi = ordinary + FED_STD[filing] + gain
     return NIIT_RATE * max(0, min(gain, magi - NIIT_THRESHOLD[filing]))
 
-def state_gain_tax(code, ordinary, gain, filing, is_long, is_home):
+def state_gain_tax(code, ordinary, gain, filing, is_long, is_home, is_real_estate=False):
+    # line-for-line port of stateGainTax() in script.js
     s = STATES[code]
     if s.get("waCapGains"):
-        if not is_long or is_home:
+        if not is_long or is_home or is_real_estate:
             return 0.0
         base = max(0, gain - WA_DEDUCTION)
         return base * WA_RATE + max(0, base - WA_SURTAX_ABOVE) * WA_SURTAX
     if s.get("none"):
         return 0.0
     if s.get("stShort") and not is_long:
-        return gain * s["stShort"]
-    mult = 2 if (not s.get("noMult") and filing == "married") else 1
-    std = 0
-    if s.get("stdFed"):
+        T = s["brackets"][0][0]
+        return gain * s["stShort"] + .04 * (max(0, ordinary + gain - T) - max(0, ordinary - T))
+    if s.get("mtLtcg") and is_long:
+        B = s["mtLtcg"][filing]
+        at3 = max(0, min(ordinary + gain, B) - min(ordinary, B))
+        return at3 * .03 + (gain - at3) * .041
+    g_eff = gain * (1 - s["exclLong"]) if (is_long and s.get("exclLong")) else gain
+    brackets, mult, std = s.get("brackets"), 1, 0
+    if filing == "married":
+        if s.get("bracketsM"):
+            brackets = s["bracketsM"]
+        elif not s.get("noMult"):
+            mult = 2
+    elif filing == "hoh" and s.get("bracketsH"):
+        brackets = s["bracketsH"]
+    if s.get("sciad"):
+        base, start, span = s["sciad"][filing]
+        std = base * max(0, 1 - max(0, ordinary + gain - start) / span)
+    elif s.get("stdFed"):
         std = FED_STD[filing]
     elif s.get("std"):
-        std = s.get("stdM", s["std"] * 2) if filing == "married" else s["std"]
+        std = (s.get("stdM", s["std"] * 2) if filing == "married"
+               else s.get("stdH", s["std"]) if filing == "hoh" else s["std"])
     lo = max(0, ordinary - std)
-    hi = max(0, ordinary + gain - std)
+    hi = max(0, ordinary + g_eff - std)
     if s.get("flat"):
         return (hi - lo) * s["flat"]
-    return bracket_tax(hi, s["brackets"], mult) - bracket_tax(lo, s["brackets"], mult)
+    marginal = bracket_tax(hi, brackets, mult) - bracket_tax(lo, brackets, mult)
+    if s.get("hiAlt") and is_long:
+        return min(marginal, gain * s["hiAlt"])
+    return marginal
 
 def money(n):
     return "${:,.0f}".format(round(n))
@@ -210,14 +231,27 @@ def treatment_sentence(code):
     if s.get("stShort"):
         return (f"{name} taxes most long-term capital gains at {pct(s['brackets'][0][1])} "
                 f"(rising to {pct(s['brackets'][-1][1])} on taxable income above {money(s['brackets'][0][0])}), "
-                f"and taxes short-term capital gains at a higher {pct(s['stShort'])} rate.")
+                f"and taxes short-term capital gains at a higher {pct(s['stShort'])} rate; "
+                f"the 4% surtax above that threshold applies to short-term gains too.")
+    if s.get("mtLtcg"):
+        return (f"{name} taxes net long-term capital gains on its own rate table: 3.0% up to "
+                f"{money(s['mtLtcg']['single'])} (single) and 4.1% above, with short-term gains taxed as ordinary income.")
+    if s.get("hiAlt"):
+        return (f"{name} taxes capital gains as ordinary income but offers an elective alternative rate that caps "
+                f"long-term gains at {pct(s['hiAlt'])}.")
+    excl = (f" {name} excludes {int(s['exclLong'] * 100)}% of net long-term capital gains, which the calculator models."
+            if s.get("exclLong") else "")
     if s.get("flat"):
-        return f"{name} taxes capital gains as ordinary income at a flat {pct(s['flat'])} rate."
+        return f"{name} taxes capital gains as ordinary income at a flat {pct(s['flat'])} rate.{excl}"
     return (f"{name} taxes capital gains as ordinary income on a graduated scale from {pct(s['brackets'][0][1])} "
-            f"up to a top rate of {pct(s['brackets'][-1][1])}.")
+            f"up to a top rate of {pct(s['brackets'][-1][1])}.{excl}")
 
 def std_sentence(code, name):
     s = STATES[code]
+    if s.get("sciad"):
+        b = s["sciad"]
+        return (f" The estimate subtracts {name}'s Income Adjusted Deduction ({money(b['single'][0])} single / "
+                f"{money(b['married'][0])} married), which phases out at higher incomes.")
     if s.get("stdFed"):
         return f" {name} uses the federal standard deduction ({money(FED_STD['single'])} single / {money(FED_STD['married'])} married in 2026), which the estimate subtracts first."
     if s.get("std"):
@@ -293,8 +327,14 @@ def state_page(code):
     if s.get("stShort"):
         st_state = state_gain_tax(code, EX_INC, EX_GAIN, "single", False, False)
         extra.append(f"<p>Sell within a year instead and {name} taxes the same {money(EX_GAIN)} gain at {pct(s['stShort'])} ({money(st_state)} of state tax), on top of federal ordinary rates. The one-year line matters twice here.</p>")
-    if s.get("pref"):
-        extra.append(f"<p><strong>Good news if you hold long.</strong> {name} gives long-term gains a partial exclusion or reduced rate that this site's flat estimate does not model, so your actual {name} tax on a long-term gain may be lower than the ordinary-income estimate shown by the calculator.</p>")
+    if s.get("exclLong"):
+        extra.append(f"<p><strong>Good news if you hold long.</strong> {name} excludes {int(s['exclLong'] * 100)}% of net long-term capital gains from state tax, and the calculator models that exclusion.</p>")
+    if s.get("hiAlt"):
+        extra.append(f"<p><strong>Good news if you hold long.</strong> {name} offers an elective alternative rate that caps long-term gains at {pct(s['hiAlt'])}, and the calculator applies it whenever it is lower than the ordinary computation.</p>")
+    if s.get("mtLtcg"):
+        extra.append(f"<p><strong>Good news if you hold long.</strong> {name} taxes net long-term capital gains on its own lower rate table (3.0% up to {money(s['mtLtcg']['single'])} for single filers, 4.1% above), and the calculator models it.</p>")
+    if code == "NM":
+        extra.append(f"<p>{name}'s former capital-gains deduction was narrowed starting in 2025: it is now capped at $2,500 and limited to gains from New Mexico business assets, so the calculator treats general gains as ordinary income.</p>")
     if s.get("local"):
         extra.append(f"<p>Parts of {name} also levy local income taxes that are not included in these estimates.</p>")
 

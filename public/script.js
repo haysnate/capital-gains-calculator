@@ -33,24 +33,29 @@ const HOME_EXCLUSION = { single: 250000, married: 500000, hoh: 250000 };
 // ---- State income tax (2026, Tax Foundation "State Individual Income Tax
 // Rates and Brackets, 2026", verified 2026-07-21; gains taxed as ordinary income) ----
 // flat: single rate. brackets: [upperBound, rate] pairs (single filer);
-// married thresholds are doubled (common approximation) unless noMult.
-// std: state standard deduction (single); stdM: married amount when not double;
-// stdFed: state uses the federal standard deduction.
-// pref: state gives long-term gains a break (exclusion / lower rate) not modeled here.
+// married thresholds are doubled (common approximation) unless noMult
+// (noMult: same brackets for joint filers) or an explicit bracketsM schedule.
+// bracketsH: explicit head-of-household schedule where published for 2026.
+// std: state standard deduction (single); stdM/stdH: married/HOH amounts when
+// not simply double/equal; stdFed: state uses the federal standard deduction.
+// exclLong: fraction of a long-term gain the state excludes (modeled).
+// hiAlt: Hawaii's elective alternative rate cap on long-term gains (modeled).
+// mtLtcg: Montana's own long-term rate table thresholds (modeled).
+// sciad: South Carolina's Income Adjusted Deduction [base, phaseStart, span].
 // local: state has local income taxes in some areas (not modeled; disclosed).
 const STATES = {
   AL: { name: "Alabama", local: true, std: 3000, stdM: 8500, brackets: [[500,.02],[3000,.04],[Infinity,.05]] },
   AK: { name: "Alaska", none: true },
   AZ: { name: "Arizona", std: 8350, flat: .025 },
-  AR: { name: "Arkansas", pref: true, std: 2470, brackets: [[4600,.02],[Infinity,.039]] },
+  AR: { name: "Arkansas", exclLong: .50, std: 2470, brackets: [[4600,.02],[Infinity,.039]] },
   CA: { name: "California", std: 5540, brackets: [[11079,.01],[26264,.02],[41452,.04],[57542,.06],[72724,.08],[371479,.093],[445771,.103],[742953,.113],[1000000,.123],[Infinity,.133]] },
   CO: { name: "Colorado", stdFed: true, flat: .044 },
   CT: { name: "Connecticut", brackets: [[10000,.02],[50000,.045],[100000,.055],[200000,.06],[250000,.065],[500000,.069],[Infinity,.0699]] },
   DE: { name: "Delaware", local: true, std: 3250, brackets: [[2000,0],[5000,.022],[10000,.039],[20000,.048],[25000,.052],[60000,.0555],[Infinity,.066]] },
   DC: { name: "District of Columbia", stdFed: true, brackets: [[10000,.04],[40000,.06],[60000,.065],[250000,.085],[500000,.0925],[1000000,.0975],[Infinity,.1075]] },
   FL: { name: "Florida", none: true },
-  GA: { name: "Georgia", std: 12000, flat: .0519 },
-  HI: { name: "Hawaii", pref: true, std: 4400, brackets: [[9600,.014],[14400,.032],[19200,.055],[24000,.064],[36000,.068],[48000,.072],[125000,.076],[175000,.079],[225000,.0825],[275000,.09],[325000,.10],[Infinity,.11]] },
+  GA: { name: "Georgia", std: 15000, stdM: 30000, flat: .0499 },
+  HI: { name: "Hawaii", hiAlt: .0725, std: 4400, brackets: [[9600,.014],[14400,.032],[19200,.055],[24000,.064],[36000,.068],[48000,.072],[125000,.076],[175000,.079],[225000,.0825],[275000,.09],[325000,.10],[Infinity,.11]] },
   ID: { name: "Idaho", stdFed: true, flat: .053 },
   IL: { name: "Illinois", flat: .0495 },
   IN: { name: "Indiana", local: true, flat: .0295 },
@@ -60,26 +65,26 @@ const STATES = {
   LA: { name: "Louisiana", std: 12875, flat: .03 },
   ME: { name: "Maine", std: 8350, brackets: [[27400,.058],[64850,.0675],[Infinity,.0715]] },
   MD: { name: "Maryland", local: true, std: 3350, brackets: [[1000,.02],[2000,.03],[3000,.04],[100000,.0475],[125000,.05],[150000,.0525],[250000,.055],[500000,.0575],[1000000,.0625],[Infinity,.065]] },
-  MA: { name: "Massachusetts", stShort: .085, noMult: true, brackets: [[1083150,.05],[Infinity,.09]] },
+  MA: { name: "Massachusetts", stShort: .085, noMult: true, brackets: [[1107750,.05],[Infinity,.09]] },
   MI: { name: "Michigan", local: true, flat: .0425 },
-  MN: { name: "Minnesota", std: 15300, brackets: [[33310,.0535],[109430,.068],[203150,.0785],[Infinity,.0985]] },
+  MN: { name: "Minnesota", std: 15300, stdM: 30600, stdH: 23000, brackets: [[33310,.0535],[109430,.068],[203150,.0785],[Infinity,.0985]], bracketsM: [[48700,.0535],[193480,.068],[337930,.0785],[Infinity,.0985]], bracketsH: [[41010,.0535],[164800,.068],[270060,.0785],[Infinity,.0985]] },
   MS: { name: "Mississippi", std: 2300, flat: .04 },
   MO: { name: "Missouri", local: true, stdFed: true, brackets: [[1348,0],[2696,.02],[4044,.025],[5392,.03],[6740,.035],[8088,.04],[9436,.045],[Infinity,.047]] },
-  MT: { name: "Montana", pref: true, stdFed: true, brackets: [[47500,.047],[Infinity,.0565]] },
+  MT: { name: "Montana", mtLtcg: { single: 20500, married: 41000, hoh: 30750 }, stdFed: true, brackets: [[47500,.047],[Infinity,.0565]] },
   NE: { name: "Nebraska", std: 8850, brackets: [[4130,.0246],[24760,.0351],[Infinity,.0455]] },
   NV: { name: "Nevada", none: true },
   NH: { name: "New Hampshire", none: true },
   NJ: { name: "New Jersey", brackets: [[20000,.014],[35000,.0175],[40000,.035],[75000,.05525],[500000,.0637],[1000000,.0897],[Infinity,.1075]] },
-  NM: { name: "New Mexico", pref: true, stdFed: true, brackets: [[5500,.015],[16500,.032],[33500,.043],[66500,.047],[210000,.049],[Infinity,.059]] },
+  NM: { name: "New Mexico", stdFed: true, brackets: [[5500,.015],[16500,.032],[33500,.043],[66500,.047],[210000,.049],[Infinity,.059]] },
   NY: { name: "New York", local: true, std: 8000, stdM: 16050, brackets: [[8500,.039],[11700,.044],[13900,.0515],[80650,.054],[215400,.059],[1077550,.0685],[5000000,.0965],[25000000,.103],[Infinity,.109]] },
   NC: { name: "North Carolina", std: 12750, flat: .0399 },
-  ND: { name: "North Dakota", pref: true, stdFed: true, brackets: [[48475,0],[244825,.0195],[Infinity,.025]] },
+  ND: { name: "North Dakota", exclLong: .40, stdFed: true, brackets: [[48475,0],[244825,.0195],[Infinity,.025]] },
   OH: { name: "Ohio", local: true, brackets: [[26050,0],[Infinity,.0275]] },
   OK: { name: "Oklahoma", std: 6350, brackets: [[3750,0],[4900,.025],[7200,.035],[Infinity,.045]] },
   OR: { name: "Oregon", local: true, std: 2910, brackets: [[4550,.0475],[11400,.0675],[125000,.0875],[Infinity,.099]] },
   PA: { name: "Pennsylvania", local: true, flat: .0307 },
   RI: { name: "Rhode Island", std: 11200, brackets: [[82050,.0375],[186450,.0475],[Infinity,.0599]] },
-  SC: { name: "South Carolina", pref: true, std: 8350, brackets: [[3640,0],[18230,.03],[Infinity,.06]] },
+  SC: { name: "South Carolina", exclLong: .44, noMult: true, sciad: { single: [15000,40000,55000], married: [30000,80000,110000], hoh: [22500,60000,82500] }, brackets: [[30000,.0199],[Infinity,.0521]] },
   SD: { name: "South Dakota", none: true },
   TN: { name: "Tennessee", none: true },
   TX: { name: "Texas", none: true },
@@ -87,8 +92,8 @@ const STATES = {
   VT: { name: "Vermont", std: 7650, brackets: [[49400,.0335],[119700,.066],[249700,.076],[Infinity,.0875]] },
   VA: { name: "Virginia", std: 8750, brackets: [[3000,.02],[5000,.03],[17000,.05],[Infinity,.0575]] },
   WA: { name: "Washington", none: true, waCapGains: true },
-  WV: { name: "West Virginia", local: true, brackets: [[10000,.0222],[25000,.0296],[40000,.0333],[60000,.0444],[Infinity,.0482]] },
-  WI: { name: "Wisconsin", pref: true, std: 13960, stdM: 25840, brackets: [[15110,.035],[51950,.044],[332720,.053],[Infinity,.0765]] },
+  WV: { name: "West Virginia", local: true, noMult: true, brackets: [[10000,.0211],[25000,.0281],[40000,.0316],[60000,.0422],[Infinity,.0458]] },
+  WI: { name: "Wisconsin", exclLong: .30, std: 13960, stdM: 25840, brackets: [[15110,.035],[51950,.044],[332720,.053],[Infinity,.0765]] },
   WY: { name: "Wyoming", none: true },
 };
 
@@ -103,6 +108,7 @@ const el = {
   termShort: $("termShort"), termLong: $("termLong"),
   filing: $("filing"), state: $("state"),
   homeSale: $("homeSale"), homeHint: $("homeHint"),
+  waEstate: $("waEstate"), waEstateRow: $("waEstateRow"),
   taxLabel: $("taxLabel"), totalTax: $("totalTax"), savingsBox: $("savingsBox"),
   donut: $("donut"),
   legKept: $("legKept"), legFed: $("legFed"), legNiit: $("legNiit"), legState: $("legState"),
@@ -115,7 +121,10 @@ const el = {
 let term = "long";
 
 function num(node) {
-  const v = String(node.value).replace(/[^0-9.]/g, "");
+  // strip currency formatting, then require the remainder to be one plain
+  // number; malformed input ("1e6", "1.2.3") reads as 0, never reinterpreted
+  const v = String(node.value).replace(/[$,\s]/g, "");
+  if (!/^\d*\.?\d*$/.test(v)) return 0;
   const n = parseFloat(v);
   return isFinite(n) && n >= 0 ? n : 0;
 }
@@ -159,35 +168,70 @@ function fedShortTax(ordinary, gain, filing) {
 }
 
 function niitTax(ordinary, gain, filing) {
-  const magi = ordinary + gain; // approximation: MAGI ≈ taxable income + gain
+  // MAGI approximation: the taxable-income input plus the standard deduction
+  // (MAGI sits above taxable income by at least the deduction), plus the gain
+  const magi = ordinary + FED_STD[filing] + gain;
   return NIIT_RATE * Math.max(0, Math.min(gain, magi - NIIT_THRESHOLD[filing]));
 }
 
-// State tax on the gain: marginal stacking on state ordinary-income rates.
-function stateGainTax(code, ordinary, gain, filing, isLong, isHome) {
+// State tax on the gain: marginal stacking on state ordinary-income rates,
+// with modeled long-term preferences (exclusions, HI alternative rate,
+// MT rate table, SC SCIAD) where the state publishes one.
+function stateGainTax(code, ordinary, gain, filing, isLong, isHome, isRealEstate) {
   const s = STATES[code];
   if (!s) return 0;
   if (s.waCapGains) {
-    if (!isLong || isHome) return 0; // WA taxes only long-term gains; real estate exempt
+    // WA taxes only long-term gains; ALL real estate is exempt, not just homes
+    if (!isLong || isHome || isRealEstate) return 0;
     const base = Math.max(0, gain - WA_DEDUCTION);
     return base * WA_RATE + Math.max(0, base - WA_SURTAX_ABOVE) * WA_SURTAX;
   }
   if (s.none) return 0;
-  if (s.stShort && !isLong) return gain * s.stShort; // MA 8.5% short-term rate
-  const mult = (!s.noMult && filing === "married") ? 2 : 1;
-  let std = 0;
-  if (s.stdFed) std = FED_STD[filing];
-  else if (s.std) std = filing === "married" ? (s.stdM || s.std * 2) : s.std;
+  if (s.stShort && !isLong) {
+    // MA short-term rate, plus the 4% surtax on taxable income above the
+    // threshold (the surtax applies to short-term gains too)
+    const T = s.brackets[0][0];
+    return gain * s.stShort + .04 * (Math.max(0, ordinary + gain - T) - Math.max(0, ordinary - T));
+  }
+  // Montana: long-term gains get their own 3.0%/4.1% table, the lower
+  // bracket consumed by other taxable income first
+  if (s.mtLtcg && isLong) {
+    const B = s.mtLtcg[filing];
+    const at3 = Math.max(0, Math.min(ordinary + gain, B) - Math.min(ordinary, B));
+    return at3 * .03 + (gain - at3) * .041;
+  }
+  const gEff = (isLong && s.exclLong) ? gain * (1 - s.exclLong) : gain;
+  let brackets = s.brackets, mult = 1, std = 0;
+  if (filing === "married") {
+    if (s.bracketsM) brackets = s.bracketsM;
+    else if (!s.noMult) mult = 2;
+  } else if (filing === "hoh" && s.bracketsH) {
+    brackets = s.bracketsH;
+  }
+  if (s.sciad) {
+    // SC Income Adjusted Deduction, phased out by AGI (approximated here as
+    // taxable income plus the gain)
+    const [base, start, span] = s.sciad[filing];
+    std = base * Math.max(0, 1 - Math.max(0, ordinary + gain - start) / span);
+  } else if (s.stdFed) {
+    std = FED_STD[filing];
+  } else if (s.std) {
+    std = filing === "married" ? (s.stdM || s.std * 2)
+        : filing === "hoh" ? (s.stdH || s.std) : s.std;
+  }
   const lo = Math.max(0, ordinary - std);
-  const hi = Math.max(0, ordinary + gain - std);
+  const hi = Math.max(0, ordinary + gEff - std);
   if (s.flat) return (hi - lo) * s.flat;
-  return bracketTax(hi, s.brackets, mult) - bracketTax(lo, s.brackets, mult);
+  const marginal = bracketTax(hi, brackets, mult) - bracketTax(lo, brackets, mult);
+  // Hawaii: elective alternative computation caps the long-term gain rate
+  if (s.hiAlt && isLong) return Math.min(marginal, gain * s.hiAlt);
+  return marginal;
 }
 
-function taxOnGain(taxableGain, ordinary, filing, stateCode, isLong, isHome) {
+function taxOnGain(taxableGain, ordinary, filing, stateCode, isLong, isHome, isRealEstate) {
   const fed = isLong ? fedLongTax(ordinary, taxableGain, filing) : fedShortTax(ordinary, taxableGain, filing);
   const niit = niitTax(ordinary, taxableGain, filing);
-  const state = stateGainTax(stateCode, ordinary, taxableGain, filing, isLong, isHome);
+  const state = stateGainTax(stateCode, ordinary, taxableGain, filing, isLong, isHome, isRealEstate);
   return { fed, niit, state, total: fed + niit + state };
 }
 
@@ -198,11 +242,15 @@ function calc() {
   const isHome = el.homeSale.checked;
   const isLong = term === "long";
   const s = STATES[stateCode];
+  const isRealEstate = !!(el.waEstate && el.waEstate.checked);
+  if (el.waEstateRow) el.waEstateRow.hidden = stateCode !== "WA";
 
   el.homeHint.hidden = !isHome;
 
   const gain = sale - purchase;
-  const exclusion = isHome ? Math.min(Math.max(0, gain), HOME_EXCLUSION[filing]) : 0;
+  // §121 requires 2+ years of ownership and use, so a short-term sale can
+  // never qualify: the exclusion is only applied to long-term sales
+  const exclusion = (isHome && isLong) ? Math.min(Math.max(0, gain), HOME_EXCLUSION[filing]) : 0;
   const taxableGain = Math.max(0, gain - exclusion);
 
   // ---- loss case ----
@@ -229,12 +277,15 @@ function calc() {
     return;
   }
 
-  const t = taxOnGain(taxableGain, ordinary, filing, stateCode, isLong, isHome);
+  const t = taxOnGain(taxableGain, ordinary, filing, stateCode, isLong, isHome, isRealEstate);
   const kept = gain - t.total;
   const effRate = gain > 0 ? t.total / gain : 0;
 
-  // ---- short vs long comparison ----
-  const alt = taxOnGain(taxableGain, ordinary, filing, stateCode, !isLong, isHome);
+  // ---- short vs long comparison (the §121 exclusion only exists on the
+  // long-term side, so the alternative's taxable gain is recomputed) ----
+  const altExclusion = (isHome && !isLong) ? Math.min(Math.max(0, gain), HOME_EXCLUSION[filing]) : 0;
+  const altTaxable = !isLong ? Math.max(0, gain - altExclusion) : gain;
+  const alt = taxOnGain(altTaxable, ordinary, filing, stateCode, !isLong, isHome, isRealEstate);
   const saveByHolding = isLong ? alt.total - t.total : t.total - alt.total;
 
   // ---- render ----
@@ -287,16 +338,20 @@ function calc() {
   el.rKept.textContent = money(kept);
   el.rEffRate.textContent = (effRate * 100).toFixed(1) + "%";
 
-  let note = "Estimates use 2026 federal rates (Rev. Proc. 2025-32) and treat state tax at ordinary income rates stacked on your other income. ";
-  if (s?.waCapGains) note += isHome
-    ? "Washington's capital gains tax exempts real estate. "
-    : "Washington has no ordinary income tax but taxes long-term gains above ~$278,000 at 7% (9.9% over $1M); real estate is exempt. ";
+  let note = "Estimates use 2026 federal rates (Rev. Proc. 2025-32) and stack state tax on your other income. ";
+  if (s?.waCapGains) note += (isHome || isRealEstate)
+    ? "Washington's capital gains tax exempts all real estate, so no state tax applies to this sale. "
+    : "Washington has no ordinary income tax but taxes long-term gains above ~$278,000 at 7% (9.9% over $1M); all real estate is exempt. ";
   else if (s?.none) note += s.name + " has no state income tax. ";
-  if (s?.pref && isLong) note += s.name + " taxes long-term gains at reduced rates or with exclusions not modeled here, so your actual state tax may be lower. ";
+  if (s?.exclLong && isLong) note += s.name + " excludes " + (s.exclLong * 100) + "% of long-term gains, which is included in this estimate. ";
+  if (s?.hiAlt && isLong) note += "Hawaii's elective 7.25% alternative rate on long-term gains is included where it is lower. ";
+  if (s?.mtLtcg && isLong) note += "Montana's separate 3.0%/4.1% long-term rates are included. ";
+  if (s?.sciad) note += "South Carolina's Income Adjusted Deduction and its income phase-out are included, using your entries as a stand-in for federal AGI. ";
+  if (stateCode === "NM" && isLong) note += "New Mexico's remaining capital-gains deduction (up to $2,500, New Mexico business assets only) is not modeled. ";
   if (s?.local) note += s.name + " also has local income taxes not included. ";
-  if (isHome && !isLong) note += "Note: the home-sale exclusion requires 2+ years of ownership and use, so qualifying sales are long-term. ";
-  if (t.niit > 0) note += "NIIT uses taxable income as a stand-in for MAGI. ";
-  note += "Assumes no other capital gains or losses. Estimates only. Not tax, legal, or financial advice.";
+  if (isHome && !isLong) note += "The home-sale exclusion requires 2+ years of ownership and use, so it cannot apply to a short-term sale and is NOT applied here. ";
+  if (isHome && isLong) note += "The home-sale exclusion assumes you owned and used the home 2 of the last 5 years and have not used the exclusion in the last 2 years. ";
+  note += "NIIT is estimated from taxable income plus the standard deduction as a stand-in for MAGI. Collectibles, depreciation recapture (25%/28% federal classes), and married-filing-separately are not modeled. Assumes no other capital gains or losses. Estimates only. Not tax, legal, or financial advice.";
   el.taxNote.textContent = note;
 }
 
@@ -307,8 +362,8 @@ Object.keys(STATES).sort((a, b) => STATES[a].name.localeCompare(STATES[b].name))
   el.state.appendChild(o);
 });
 const _qsState = (new URLSearchParams(location.search).get("state") || "").toUpperCase();
-el.state.value = (typeof window.PRESET_STATE === "string" && STATES[window.PRESET_STATE]) ? window.PRESET_STATE
-  : STATES[_qsState] ? _qsState : "TX";
+el.state.value = (typeof window.PRESET_STATE === "string" && Object.hasOwn(STATES, window.PRESET_STATE)) ? window.PRESET_STATE
+  : Object.hasOwn(STATES, _qsState) ? _qsState : "TX";
 if (window.PRESET_HOME) el.homeSale.checked = true;
 
 // ---- events ----
@@ -328,5 +383,6 @@ el.termLong.addEventListener("click", () => {
 });
 [el.filing, el.state].forEach((n) => n.addEventListener("change", calc));
 el.homeSale.addEventListener("change", calc);
+if (el.waEstate) el.waEstate.addEventListener("change", calc);
 
 calc();
