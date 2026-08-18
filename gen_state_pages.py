@@ -105,8 +105,14 @@ def state_gain_tax(code, ordinary, gain, filing, is_long, is_home, is_real_estat
     elif s.get("std"):
         std = (s.get("stdM", s["std"] * 2) if filing == "married"
                else s.get("stdH", s["std"]) if filing == "hoh" else s["std"])
-    lo = max(0, ordinary - std)
-    hi = max(0, ordinary + g_eff - std)
+    def phased(agi):
+        if not s.get("stdPhase") or not std:
+            return std
+        t1, t2 = s["stdPhase"]["t1"], s["stdPhase"]["t2"]
+        r = .03 * min(max(agi - t1, 0), t2 - t1) + .10 * max(agi - t2, 0)
+        return max(std * .2, std - r)
+    lo = max(0, ordinary - phased(ordinary))
+    hi = max(0, ordinary + g_eff - phased(ordinary + gain))
     if s.get("flat"):
         return (hi - lo) * s["flat"]
     marginal = bracket_tax(hi, brackets, mult) - bracket_tax(lo, brackets, mult)

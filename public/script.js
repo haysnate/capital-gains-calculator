@@ -67,7 +67,7 @@ const STATES = {
   MD: { name: "Maryland", local: true, std: 3350, brackets: [[1000,.02],[2000,.03],[3000,.04],[100000,.0475],[125000,.05],[150000,.0525],[250000,.055],[500000,.0575],[1000000,.0625],[Infinity,.065]] },
   MA: { name: "Massachusetts", stShort: .085, noMult: true, brackets: [[1107750,.05],[Infinity,.09]] },
   MI: { name: "Michigan", local: true, flat: .0425 },
-  MN: { name: "Minnesota", std: 15300, stdM: 30600, stdH: 23000, brackets: [[33310,.0535],[109430,.068],[203150,.0785],[Infinity,.0985]], bracketsM: [[48700,.0535],[193480,.068],[337930,.0785],[Infinity,.0985]], bracketsH: [[41010,.0535],[164800,.068],[270060,.0785],[Infinity,.0985]] },
+  MN: { name: "Minnesota", std: 15300, stdM: 30600, stdH: 23000, stdPhase: { t1: 244400, t2: 337800 }, brackets: [[33310,.0535],[109430,.068],[203150,.0785],[Infinity,.0985]], bracketsM: [[48700,.0535],[193480,.068],[337930,.0785],[Infinity,.0985]], bracketsH: [[41010,.0535],[164800,.068],[270060,.0785],[Infinity,.0985]] },
   MS: { name: "Mississippi", std: 2300, flat: .04 },
   MO: { name: "Missouri", local: true, stdFed: true, brackets: [[1348,0],[2696,.02],[4044,.025],[5392,.03],[6740,.035],[8088,.04],[9436,.045],[Infinity,.047]] },
   MT: { name: "Montana", mtLtcg: { single: 20500, married: 41000, hoh: 30750 }, stdFed: true, brackets: [[47500,.047],[Infinity,.0565]] },
@@ -219,8 +219,16 @@ function stateGainTax(code, ordinary, gain, filing, isLong, isHome, isRealEstate
     std = filing === "married" ? (s.stdM || s.std * 2)
         : filing === "hoh" ? (s.stdH || s.std) : s.std;
   }
-  const lo = Math.max(0, ordinary - std);
-  const hi = Math.max(0, ordinary + gEff - std);
+  // MN-style deduction phase-out depends on AGI, so it is applied at each
+  // stacking point (without the gain, then with it)
+  const phased = (agi) => {
+    if (!s.stdPhase || !std) return std;
+    const r = .03 * Math.min(Math.max(agi - s.stdPhase.t1, 0), s.stdPhase.t2 - s.stdPhase.t1)
+            + .10 * Math.max(agi - s.stdPhase.t2, 0);
+    return Math.max(std * .2, std - r);
+  };
+  const lo = Math.max(0, ordinary - phased(ordinary));
+  const hi = Math.max(0, ordinary + gEff - phased(ordinary + gain));
   if (s.flat) return (hi - lo) * s.flat;
   const marginal = bracketTax(hi, brackets, mult) - bracketTax(lo, brackets, mult);
   // Hawaii: elective alternative computation caps the long-term gain rate
@@ -349,6 +357,8 @@ function calc() {
   if (s?.sciad) note += "South Carolina's Income Adjusted Deduction and its income phase-out are included, using your entries as a stand-in for federal AGI. ";
   if (stateCode === "NM" && isLong) note += "New Mexico's remaining capital-gains deduction (up to $2,500, New Mexico business assets only) is not modeled. ";
   if (s?.local) note += s.name + " also has local income taxes not included. ";
+  if (stateCode === "WI") note += "Wisconsin's standard deduction shrinks as income rises (not modeled), so state figures run low at higher incomes. ";
+  if (s?.stdPhase) note += s.name + "'s standard-deduction phase-out at higher incomes is included. ";
   if (isHome && !isLong) note += "The home-sale exclusion requires 2+ years of ownership and use, so it cannot apply to a short-term sale and is NOT applied here. ";
   if (isHome && isLong) note += "The home-sale exclusion assumes you owned and used the home 2 of the last 5 years and have not used the exclusion in the last 2 years. ";
   note += "NIIT is estimated from taxable income plus the standard deduction as a stand-in for MAGI. Collectibles, depreciation recapture (25%/28% federal classes), and married-filing-separately are not modeled. Assumes no other capital gains or losses. Estimates only. Not tax, legal, or financial advice.";
