@@ -89,7 +89,9 @@ def state_gain_tax(code, ordinary, gain, filing, is_long, is_home, is_real_estat
         at3 = max(0, min(ordinary + gain, B) - min(ordinary, B))
         return at3 * .03 + (gain - at3) * .041
     g_eff = gain * (1 - s["exclLong"]) if (is_long and s.get("exclLong")) else gain
-    brackets, mult, std = s.get("brackets"), 1, 0
+    if is_long and s.get("dedLong"):
+        g_eff = max(0, g_eff - s["dedLong"])
+    brackets, mult = s.get("brackets"), 1
     if filing == "married":
         if s.get("bracketsM"):
             brackets = s["bracketsM"]
@@ -97,22 +99,24 @@ def state_gain_tax(code, ordinary, gain, filing, is_long, is_home, is_real_estat
             mult = 2
     elif filing == "hoh" and s.get("bracketsH"):
         brackets = s["bracketsH"]
-    if s.get("sciad"):
-        base, start, span = s["sciad"][filing]
-        std = base * max(0, 1 - max(0, ordinary + gain - start) / span)
-    elif s.get("stdFed"):
-        std = FED_STD[filing]
-    elif s.get("std"):
-        std = (s.get("stdM", s["std"] * 2) if filing == "married"
-               else s.get("stdH", s["std"]) if filing == "hoh" else s["std"])
-    def phased(agi):
-        if not s.get("stdPhase") or not std:
-            return std
-        t1, t2 = s["stdPhase"]["t1"], s["stdPhase"]["t2"]
-        r = .03 * min(max(agi - t1, 0), t2 - t1) + .10 * max(agi - t2, 0)
-        return max(std * .2, std - r)
-    lo = max(0, ordinary - phased(ordinary))
-    hi = max(0, ordinary + g_eff - phased(ordinary + gain))
+    def std_at(agi):
+        d = 0
+        if s.get("sciad"):
+            base, start, span = s["sciad"][filing]
+            frac = max(0, agi - start) / span
+            d = 0 if frac >= 1 else base - int(base * frac / 10) * 10
+        elif s.get("stdFed"):
+            d = FED_STD[filing]
+        elif s.get("std"):
+            d = (s.get("stdM", s["std"] * 2) if filing == "married"
+                 else s.get("stdH", s["std"]) if filing == "hoh" else s["std"])
+        if s.get("stdPhase") and d:
+            t1, t2 = s["stdPhase"]["t1"], s["stdPhase"]["t2"]
+            r = .03 * min(max(agi - t1, 0), t2 - t1) + .10 * max(agi - t2, 0)
+            d = max(d * .2, d - r)
+        return d
+    lo = max(0, ordinary - std_at(ordinary))
+    hi = max(0, ordinary + g_eff - std_at(ordinary + gain))
     if s.get("flat"):
         return (hi - lo) * s["flat"]
     marginal = bracket_tax(hi, brackets, mult) - bracket_tax(lo, brackets, mult)
@@ -340,7 +344,7 @@ def state_page(code):
     if s.get("mtLtcg"):
         extra.append(f"<p><strong>Good news if you hold long.</strong> {name} taxes net long-term capital gains on its own lower rate table (3.0% up to {money(s['mtLtcg']['single'])} for single filers, 4.1% above), and the calculator models it.</p>")
     if code == "NM":
-        extra.append(f"<p>{name}'s former capital-gains deduction was narrowed starting in 2025: it is now capped at $2,500 and limited to gains from New Mexico business assets, so the calculator treats general gains as ordinary income.</p>")
+        extra.append(f"<p><strong>A modest break on any gain.</strong> Since 2025 {name} allows a deduction of the greater of up to $2,500 of net capital gains (any asset, modeled by the calculator) or 40% of up to $1 million of gain from selling a New Mexico business (not modeled).</p>")
     if s.get("local"):
         extra.append(f"<p>Parts of {name} also levy local income taxes that are not included in these estimates.</p>")
 

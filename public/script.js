@@ -41,7 +41,9 @@ const HOME_EXCLUSION = { single: 250000, married: 500000, hoh: 250000 };
 // exclLong: fraction of a long-term gain the state excludes (modeled).
 // hiAlt: Hawaii's elective alternative rate cap on long-term gains (modeled).
 // mtLtcg: Montana's own long-term rate table thresholds (modeled).
-// sciad: South Carolina's Income Adjusted Deduction [base, phaseStart, span].
+// sciad: South Carolina's Income Adjusted Deduction [base, phaseStart, span];
+//   the reduction rounds DOWN to the nearest $10 per the statute.
+// dedLong: flat-dollar deduction against long-term gains (NM: up to $2,500).
 // local: state has local income taxes in some areas (not modeled; disclosed).
 const STATES = {
   AL: { name: "Alabama", local: true, std: 3000, stdM: 8500, brackets: [[500,.02],[3000,.04],[Infinity,.05]] },
@@ -75,7 +77,7 @@ const STATES = {
   NV: { name: "Nevada", none: true },
   NH: { name: "New Hampshire", none: true },
   NJ: { name: "New Jersey", brackets: [[20000,.014],[35000,.0175],[40000,.035],[75000,.05525],[500000,.0637],[1000000,.0897],[Infinity,.1075]] },
-  NM: { name: "New Mexico", stdFed: true, brackets: [[5500,.015],[16500,.032],[33500,.043],[66500,.047],[210000,.049],[Infinity,.059]] },
+  NM: { name: "New Mexico", dedLong: 2500, stdFed: true, brackets: [[5500,.015],[16500,.032],[33500,.043],[66500,.047],[210000,.049],[Infinity,.059]] },
   NY: { name: "New York", local: true, std: 8000, stdM: 16050, brackets: [[8500,.039],[11700,.044],[13900,.0515],[80650,.054],[215400,.059],[1077550,.0685],[5000000,.0965],[25000000,.103],[Infinity,.109]] },
   NC: { name: "North Carolina", std: 12750, flat: .0399 },
   ND: { name: "North Dakota", exclLong: .40, stdFed: true, brackets: [[48475,0],[244825,.0195],[Infinity,.025]] },
@@ -200,35 +202,42 @@ function stateGainTax(code, ordinary, gain, filing, isLong, isHome, isRealEstate
     const at3 = Math.max(0, Math.min(ordinary + gain, B) - Math.min(ordinary, B));
     return at3 * .03 + (gain - at3) * .041;
   }
-  const gEff = (isLong && s.exclLong) ? gain * (1 - s.exclLong) : gain;
-  let brackets = s.brackets, mult = 1, std = 0;
+  let gEff = (isLong && s.exclLong) ? gain * (1 - s.exclLong) : gain;
+  // NM: up to $2,500 of net capital gain is deductible for any asset (the 40%
+  // New-Mexico-business alternative is not modeled)
+  if (isLong && s.dedLong) gEff = Math.max(0, gEff - s.dedLong);
+  let brackets = s.brackets, mult = 1;
   if (filing === "married") {
     if (s.bracketsM) brackets = s.bracketsM;
     else if (!s.noMult) mult = 2;
   } else if (filing === "hoh" && s.bracketsH) {
     brackets = s.bracketsH;
   }
-  if (s.sciad) {
-    // SC Income Adjusted Deduction, phased out by AGI (approximated here as
-    // taxable income plus the gain)
-    const [base, start, span] = s.sciad[filing];
-    std = base * Math.max(0, 1 - Math.max(0, ordinary + gain - start) / span);
-  } else if (s.stdFed) {
-    std = FED_STD[filing];
-  } else if (s.std) {
-    std = filing === "married" ? (s.stdM || s.std * 2)
+  // Deductions that depend on AGI (SC SCIAD, MN phase-out) are evaluated at
+  // each stacking point: without the gain, then with it, so the gain-driven
+  // loss of deduction is part of the marginal tax on the gain.
+  const stdAt = (agi) => {
+    let d = 0;
+    if (s.sciad) {
+      const [base, start, span] = s.sciad[filing];
+      const frac = Math.max(0, agi - start) / span;
+      // statutory rounding: the reduction rounds down to the nearest $10
+      d = frac >= 1 ? 0 : base - Math.floor(base * frac / 10) * 10;
+    } else if (s.stdFed) {
+      d = FED_STD[filing];
+    } else if (s.std) {
+      d = filing === "married" ? (s.stdM || s.std * 2)
         : filing === "hoh" ? (s.stdH || s.std) : s.std;
-  }
-  // MN-style deduction phase-out depends on AGI, so it is applied at each
-  // stacking point (without the gain, then with it)
-  const phased = (agi) => {
-    if (!s.stdPhase || !std) return std;
-    const r = .03 * Math.min(Math.max(agi - s.stdPhase.t1, 0), s.stdPhase.t2 - s.stdPhase.t1)
-            + .10 * Math.max(agi - s.stdPhase.t2, 0);
-    return Math.max(std * .2, std - r);
+    }
+    if (s.stdPhase && d) {
+      const r = .03 * Math.min(Math.max(agi - s.stdPhase.t1, 0), s.stdPhase.t2 - s.stdPhase.t1)
+              + .10 * Math.max(agi - s.stdPhase.t2, 0);
+      d = Math.max(d * .2, d - r);
+    }
+    return d;
   };
-  const lo = Math.max(0, ordinary - phased(ordinary));
-  const hi = Math.max(0, ordinary + gEff - phased(ordinary + gain));
+  const lo = Math.max(0, ordinary - stdAt(ordinary));
+  const hi = Math.max(0, ordinary + gEff - stdAt(ordinary + gain));
   if (s.flat) return (hi - lo) * s.flat;
   const marginal = bracketTax(hi, brackets, mult) - bracketTax(lo, brackets, mult);
   // Hawaii: elective alternative computation caps the long-term gain rate
@@ -355,7 +364,7 @@ function calc() {
   if (s?.hiAlt && isLong) note += "Hawaii's elective 7.25% alternative rate on long-term gains is included where it is lower. ";
   if (s?.mtLtcg && isLong) note += "Montana's separate 3.0%/4.1% long-term rates are included. ";
   if (s?.sciad) note += "South Carolina's Income Adjusted Deduction and its income phase-out are included, using your entries as a stand-in for federal AGI. ";
-  if (stateCode === "NM" && isLong) note += "New Mexico's remaining capital-gains deduction (up to $2,500, New Mexico business assets only) is not modeled. ";
+  if (stateCode === "NM" && isLong) note += "New Mexico's deduction of up to $2,500 of net capital gains is included; the larger 40% alternative for New Mexico business sales is not modeled. ";
   if (s?.local) note += s.name + " also has local income taxes not included. ";
   if (stateCode === "WI") note += "Wisconsin's standard deduction shrinks as income rises (not modeled), so state figures run low at higher incomes. ";
   if (s?.stdPhase) note += s.name + "'s standard-deduction phase-out at higher incomes is included. ";
