@@ -82,7 +82,7 @@ select.input-el:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(-
 }
 .seg button.active { background: #fff; color: var(--accent-dark); box-shadow: 0 1px 4px rgba(2,6,23,.12); }
 
-.check { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; padding: 12px 14px; background: var(--input-bg); border: 2px solid var(--border); border-radius: var(--radius-sm); transition: border-color .15s; }
+.field > .check, .check { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; padding: 12px 14px; background: var(--input-bg); border: 2px solid var(--border); border-radius: var(--radius-sm); transition: border-color .15s; }
 .check:hover { border-color: #cbd5e1; }
 .check input { width: 18px; height: 18px; margin-top: 1px; accent-color: var(--accent); cursor: pointer; flex: 0 0 auto; }
 .check span { font-size: 0.88rem; font-weight: 600; color: var(--text); line-height: 1.4; }
