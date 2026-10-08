@@ -169,7 +169,7 @@ BRAND = '''<a class="doc__brand" href="/" aria-label="Capital Gains Tax Calculat
       <span>Capital Gains Calculator</span>
     </a>'''
 
-BYLINE = f'<p class="byline">By <a href="about">Nathan Hays</a> &middot; Updated {UPDATED_HUMAN}</p>'
+BYLINE = f'<p class="byline">Updated {UPDATED_HUMAN}</p>'
 DISCLAIMER = '<p class="fineprint" style="color:var(--text-muted);font-size:0.85rem;">This page is general information, not tax, legal, or financial advice. Rates and rules can change and depend on your situation. Confirm details with a tax professional, the IRS, or your state\'s revenue department.</p>'
 
 def esc(s):
@@ -210,7 +210,7 @@ def head(title, desc, path, ld):
 def article_ld(title, path, published):
     return {
         "@type": "Article", "headline": title,
-        "author": {"@type": "Person", "name": "Nathan Hays", "url": f"{D}/about"},
+        "author": {"@type": "Organization", "name": "Capital Gains Calculator HQ"},
         "publisher": {"@type": "Organization", "name": "Capital Gains Calculator HQ"},
         "mainEntityOfPage": f"{D}/{path}",
         "datePublished": published, "dateModified": TODAY,
